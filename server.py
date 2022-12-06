@@ -53,8 +53,8 @@ def endBid():
     bidBegin = False
     time.sleep(5)
     print("_______RESULT_______")
-    for bidWinners in bidWinners:
-        print(f"CLIENT {bidWinners} bought {list(PRODUCTS.keys())[productId]} for ${currentBids[productId]}")
+    for bidWinner in bidWinners:
+        print(f"CLIENT {bidWinner} bought {list(PRODUCTS.keys())[productId]} for ${currentBids[productId]}")
         productId += 1
     sendAll("END_BID")
 
