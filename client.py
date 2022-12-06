@@ -5,18 +5,18 @@ import time
 
 HEADER = 64
 PORT = 5050
-SERVER = "192.168.1.100" #Change if server is running on different computer
+SERVER = "192.168.1.188 " #Change if server is running on different computer
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 
 
 PRODUCTS = {
-    'PAINTING' : 500.0,
-    'SHOES': 100.0,
-    'WATCH' : 300.0,
-    'GEM' : 750.0,
-    'GLASSES' : 250.0,
-    'RING' : 350.0
+   'CAR' : 2000.0,
+    'PHONE': 600.0,
+    'NECKLACE' : 250.0,
+    'CLOTHES' : 120.0,
+    'HOUSEWARE' : 350.0,
+    'EARPHONE' : 50.0
 }
 
 #Connect client to server
