@@ -5,7 +5,7 @@ import time
 
 HEADER = 64
 PORT = 5050
-SERVER = "192.168.1.188 " #Change if server is running on different computer
+SERVER = "192.168.1.188" # Change if server is running on different computer. The IP address of the server can be found after running 'py server.py' on the terminal
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 
@@ -19,12 +19,12 @@ PRODUCTS = {
     'EARPHONE' : 50.0
 }
 
-#Connect client to server
+# Client to Server connection 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR)
 
 
-#Client variables
+# Client variables
 clientId = -1
 numberOfClients = 0
 productId = 0
@@ -34,21 +34,20 @@ currentBids = []
 bidWinners = []
 
 
-#update data
+# Function to update data
 def updateWinner(bidClient, bidAmount):
     bidWinners[productId] = bidClient
     currentBids[productId] = bidAmount
 
-#help displays the winners on client side
+# Helper function to display the winners on client side
 def displayWinners():
     productId = 0
-    print("_______END OF BID_______")
+    print("_______RESULT_______")
     for bidWinner in bidWinners:
         print(f"CLIENT {bidWinner} bought {list(PRODUCTS.keys())[productId]} for ${currentBids[productId]}")
         productId += 1
 
-#checks if client is up to bid
-#helps so that clients are bombarding server with messages
+# Function to check if client is up to bid, which helps so that clients are bombarding server with messages
 def ableToBid():
     if(lastBidder + 1) % numberOfClients == clientId:
         return True
@@ -58,7 +57,7 @@ def choice():
     toBid = random.choice([True,False])
     return toBid
 
-#Sends message to server
+# Function to send message to the server
 def send(msg):
     message = msg.encode(FORMAT)
     msg_length = len(message)
@@ -67,8 +66,7 @@ def send(msg):
     client.send(send_length)
     client.send(message)
 
-#Function to initialize arrays bidWinners and currentBids
-#also set the client profile for each client
+# Function to initialize arrays bidWinners and currentBids, and also the client profile for each client
 def varHelper():
     global bidWinners
     global clientHighestPrices
@@ -83,13 +81,13 @@ def varHelper():
             clientHighestPrices.append(float(value))
     print(f"You are {file}")
 
-#function that decides if client bids for item
+# Function to decide whether the client has bid for an item
 def makeABid():
     print(f"Bidding for: {list(PRODUCTS.keys())[productId]}")
     print({currentBids[productId]})
     if bidWinners[productId] == clientId:
-        why = "CURRENTLY_HIGHEST_BIDDER"
-        print(f"<NO BID> YOU ARE CURRENTLY HIGHEST BIDDER")
+        why = "CURRENTLY_THE_HIGHEST_BIDDER"
+        print(f"<NO BID> YOU ARE CURRENTLY THE HIGHEST BIDDER")
         send(f"NO_BID {clientId} {why}")
         return
 
@@ -100,12 +98,12 @@ def makeABid():
         print(f"<BID> YOU BID FOR PRODUCT {list(PRODUCTS.keys())[productId]} with amount {bidAmount}")
         send(f"BID {clientId} {bidAmount}")
     else:
-        why = "PRICE_TOO_HIGH"
-        print(f"<NO BID> PRICE TOO HIGH")
+        why = "PRICE_IS_TOO_HIGH"
+        print(f"<NO BID> PRICE IS TOO HIGH")
         send(f"NO_BID {clientId} {why}")
         return
 
-#handles messages from server
+# Function to handle the message to the server
 def handle_server():
     global clientId
     global numberOfClients
@@ -117,19 +115,19 @@ def handle_server():
         if len(msg):
             msgList = msg.split()
             msgType = msgList[0] 
-            if msgType == "CONNECTED":  #Once client is connected give it a id and run varHelper() to initialize bidWinner[] and currentBids[]
+            if msgType == "CONNECTED":  # When the client is connected give it a id and run varHelper() to initialize bidWinner[] and currentBids[]
                 clientId = int(msgList[1])
                 varHelper()
-            elif msgType == "PROD": #Gives client the productId so they know which product is being bid on
+            elif msgType == "PROD": # this gives client the productId so they know which product is being bid on
                 productId = int(msgList[1])
-            elif msgType == "START_BID": #Initiates the bidding
+            elif msgType == "START_BID": # this initiates the bidding
                 productId = int(msgList[1])
                 numberOfClients = int(msgList[2])
                 if choice():
                     makeABid()
                 else:
-                    why = "DO_NOT_WANT_TO"
-                    print(f"<NO BID> DO NOT WANT TO")
+                    why = "NO_INTEREST"
+                    print(f"<NO BID> NO INTEREST")
                     send(f"NO_BID {clientId} {why}")
             elif msgType == "BID":
                 clientNum = int(msgList[1])
@@ -143,13 +141,13 @@ def handle_server():
                 if(clientNum == clientId):
                     pass
                 else:
-                    print(f"Client {clientNum} did not bid for reason: {msgWhy}")
+                    print(f"Client {clientNum} reason for not bidding: {msgWhy}")
             elif msgType == "ANY_BIDS":
                 if choice():
                     makeABid()
                 else:
-                    why = "DO_NOT_WANT_TO"
-                    print(f"<NO BID> DO NOT WANT TO")
+                    why = "NO_INTEREST"
+                    print(f"<NO BID> NO INTEREST")
                     send(f"NO_BID {clientId} {why}")
             elif msgType == "END_BID":
                 displayWinners()

@@ -4,25 +4,24 @@ import socket
 import threading
 import time
 
-#SERVER VARIABLES
+# Server Variables
 HEADER = 64
 PORT = 5050
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 
-#CREATING SERVER 
-#USES IPV4 and TCP CONNECTION
+#Crating server (using IPV4 and TCP connection)
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 
 PRODUCTS = {
-    'PAINTING' : 500.0,
-    'SHOES': 100.0,
-    'WATCH' : 300.0,
-    'GEM' : 750.0,
-    'GLASSES' : 250.0,
-    'RING' : 350.0
+   'CAR' : 2000.0,
+    'PHONE': 600.0,
+    'NECKLACE' : 250.0,
+    'CLOTHES' : 120.0,
+    'HOUSEWARE' : 350.0,
+    'EARPHONE' : 50.0
 }
 
 clients = []
@@ -34,33 +33,33 @@ productId = 0
 currentBids = []
 
 
-#Send message to all clients
+# Function to send message to all clients
 def sendToAll(msg):
     for client in clients:
         time.sleep(1)
         client.send(msg.encode(FORMAT))
 
-#UPDATES CURRENT BIDWINNERS AND CURRENTBIDS
+# Function to update current bid winner and the current bid
 def updateWinner(bidClient, bidAmount):
     if bidAmount > currentBids[productId]:
         bidWinners[productId] = bidClient
         currentBids[productId] = bidAmount
     return
 
-#ENDS BIDDING
+# Function to end bid
 def endBid():
     global bidStart
     productId = 0
     bidStart = False
     time.sleep(5)
-    print("_______END OF BID_______")
+    print("_______RESULT_______")
     for bidWinner in bidWinners:
         print(f"CLIENT {bidWinner} bought {list(PRODUCTS.keys())[productId]} for ${currentBids[productId]}")
         productId += 1
     sendToAll("END_BID")
 
 def handle_client(conn, addr):
-    #declaring global variables 
+    # global variables declaration
     global clientsAdded
     global clients
     global productId
@@ -71,7 +70,7 @@ def handle_client(conn, addr):
     clients.append(conn)
     clientId = clientsAdded
     clientsAdded += 1
-    print(f"[CONNECTIONS] Client {clientId} connected")
+    print(f"[CONNECTIONS] Client {clientId} has been connected")
     conn.send(f"CONNECTED {clientId}".encode(FORMAT))
     time.sleep(1)
     connected = True
@@ -91,14 +90,14 @@ def handle_client(conn, addr):
             if msgType == "NO_BID":
                 clientNum = int(msgList[1])
                 msgWhy = msgList[2]
-                print(f"Client {clientNum} did not bid reason: {msgWhy}")
+                print(f"Client {clientNum} reason for not bidding: {msgWhy}")
                 sendToAll(f"NO_BID {clientNum} {msgWhy}")
             if msgType == "DISCONNECT":
                 connected = False
     conn.close()
                 
 
-#STARTS THE SERVER
+# Function to start the server
 def start():
     global numberOfClients
     global bidWinners
@@ -120,7 +119,7 @@ def start():
         thread.start()
         print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
         if((numberOfClients) == clientsAdded):
-            print(f"ALL CLIENTS ARE CONNECTED...BIDS WILL START SOON")
+            print(f"ALL CLIENTS HAVE BEEN SUCCESSFULLY CONNECTED! BIDS WILL START SOON")
             bidStart = True
             sendToAll(f"START_BID {productId} {numberOfClients}")
     while bidStart:
@@ -139,5 +138,5 @@ def start():
         #print(Timer)
         time.sleep(1)
 
-print("[STARTING] Server is booting up...")
+print("........Server is booting up.........")
 start()
