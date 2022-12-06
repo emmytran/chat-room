@@ -31,20 +31,20 @@ productId = 0
 lastBidder = -1
 clientHighestPrices = []
 currentBids = []
-bidWinner = []
+bidWinners = []
 
 
 # Function to update data
 def winnerUpdate(bidClient, bidAmount):
-    bidWinner[productId] = bidClient
+    bidWinners[productId] = bidClient
     currentBids[productId] = bidAmount
 
 # Helper function to display the winners on client side
 def winnersDisplay():
     productId = 0
     print("_______RESULT_______")
-    for bidWinner in bidWinner:
-        print(f"CLIENT {bidWinner} bought {list(PRODUCTS.keys())[productId]} for ${currentBids[productId]}")
+    for bidWinners in bidWinners:
+        print(f"CLIENT {bidWinners} bought {list(PRODUCTS.keys())[productId]} for ${currentBids[productId]}")
         productId += 1
 
 # Function to check if client is up to bid, which helps so that clients are bombarding server with messages
@@ -66,14 +66,14 @@ def send(msg):
     client.send(send_length)
     client.send(message)
 
-# Function to initialize arrays bidWinner and currentBids, and also the client profile for each client
+# Function to initialize arrays bidWinners and currentBids, and also the client profile for each client
 def helperVar():
-    global bidWinner
+    global bidWinners
     global clientHighestPrices
     file = f"client{clientId}.txt"
     i = 0
     while i < len(PRODUCTS):
-        bidWinner.append(-1)
+        bidWinners.append(-1)
         currentBids.append(list(PRODUCTS.values())[i])
         i += 1
     with open (file) as f:
@@ -85,7 +85,7 @@ def helperVar():
 def makeBid():
     print(f"Bidding for: {list(PRODUCTS.keys())[productId]}")
     print({currentBids[productId]})
-    if bidWinner[productId] == clientId:
+    if bidWinners[productId] == clientId:
         why = "CURRENTLY_THE_HIGHEST_BIDDER"
         print(f"<NO BID> YOU ARE CURRENTLY THE HIGHEST BIDDER")
         send(f"NO_BID {clientId} {why}")
@@ -115,7 +115,7 @@ def serverHandle():
         if len(msg):
             msgList = msg.split()
             msgType = msgList[0] 
-            if msgType == "CONNECTED":  # When the client is connected give it a id and run helperVar() to initialize bidWinner[] and currentBids[]
+            if msgType == "CONNECTED":  # When the client is connected give it a id and run helperVar() to initialize bidWinners[] and currentBids[]
                 clientId = int(msgList[1])
                 helperVar()
             elif msgType == "PROD": # this gives client the productId so they know which product is being bid on

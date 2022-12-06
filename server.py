@@ -28,7 +28,7 @@ clients = [] # Client array initially is empty
 numClients = 0 # The number of clients is initially 0
 clientJoined = 0 # The number of clients joined is initialy 0
 bidBegin = False 
-bidWinner = [] # The bid winner is initally empty
+bidWinners = [] # The bid winner is initally empty
 productId = 0 # The product ID is initially 0
 currentBids = [] # The current bid is initally empty
 
@@ -42,19 +42,19 @@ def sendAll(msg):
 # Function to update current bid winner and the current bid
 def winnerUpdate(bidClient, bidAmount):
     if bidAmount > currentBids[productId]:
-        bidWinner[productId] = bidClient
+        bidWinners[productId] = bidClient
         currentBids[productId] = bidAmount
     return
 
 # Function to end bid
-def bidEnd():
+def endBid():
     global bidBegin
     productId = 0
     bidBegin = False
     time.sleep(5)
     print("_______RESULT_______")
-    for bidWinner in bidWinner:
-        print(f"CLIENT {bidWinner} bought {list(PRODUCTS.keys())[productId]} for ${currentBids[productId]}")
+    for bidWinners in bidWinners:
+        print(f"CLIENT {bidWinners} bought {list(PRODUCTS.keys())[productId]} for ${currentBids[productId]}")
         productId += 1
     sendAll("END_BID")
 
@@ -101,7 +101,7 @@ def clientHandle(conn, addr):
 # Function to start the server
 def start():
     global numClients
-    global bidWinner
+    global bidWinners
     global bidBegin
     global productId
     Timer = 7
@@ -110,7 +110,7 @@ def start():
     print(f"[LISTENING] Server is listening on {SERVER}")
     i = 0
     while i < len(PRODUCTS):
-        bidWinner.append(-1)
+        bidWinners.append(-1)
         currentBids.append(list(PRODUCTS.values())[i])
         i = i + 1
     while numClients > len(clients):
@@ -126,10 +126,10 @@ def start():
     while bidBegin:
         if(Timer <= 0):
             if productId >= 5:
-                bidEnd()
+                endBid()
                 return
-            print(f"Client {bidWinner[productId]} won {list(PRODUCTS.keys())[productId]}")
-            sendAll(f"Client {bidWinner[productId]} won {list(PRODUCTS.keys())[productId]}")
+            print(f"Client {bidWinners[productId]} won {list(PRODUCTS.keys())[productId]}")
+            sendAll(f"Client {bidWinners[productId]} won {list(PRODUCTS.keys())[productId]}")
             productId += 1
             Timer = 7
             sendAll(f"START_BID {productId} {numClients}")

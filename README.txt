@@ -1,19 +1,15 @@
+Bidding System was created with Python
 
-
-This program is a bidding system created in python
-To run the program you must install python first on to your machine.
-
-Run the server with:
+GET STARTED:
+1. If you do not have Python installed in your machine, please install it
+2. Open a terminal inside the project folder, and run:
 	python server.py
-Once server is running it would wait for 4 clients to connect
+3. Once server is up, it will wait for 4 clients to connect
 
-Run the client with:
+4. You will need to open 4 additional terminals on the same project folder
+5. Run the below command in all 4 terminals in order to get all the clients to join
 	python client.py
-Once 4 clients are connected it would start the bid
+6. The bid will start once all 4 clients are joined
+7. You can find the highest price that the client is willing to bid for an item inside the .txt files
 
-The program will run until all items are bid for and then it would output which client won the item
-
-The client text files includes the highest prices the client will be willing to pay for each item.
-
-Here is a brief video that shows the program running:
-https://youtu.be/93gUWccXiu8
+The program will run until all of the item listed are bid form it will then display which client has won what item, and which item has not been earned
