@@ -26,30 +26,30 @@ client.connect(ADDR)
 
 # Client variables
 clientId = -1
-numberOfClients = 0
+numClients = 0
 productId = 0
 lastBidder = -1
 clientHighestPrices = []
 currentBids = []
-bidWinners = []
+bidWinner = []
 
 
 # Function to update data
-def updateWinner(bidClient, bidAmount):
-    bidWinners[productId] = bidClient
+def winnerUpdate(bidClient, bidAmount):
+    bidWinner[productId] = bidClient
     currentBids[productId] = bidAmount
 
 # Helper function to display the winners on client side
-def displayWinners():
+def winnersDisplay():
     productId = 0
     print("_______RESULT_______")
-    for bidWinner in bidWinners:
+    for bidWinner in bidWinner:
         print(f"CLIENT {bidWinner} bought {list(PRODUCTS.keys())[productId]} for ${currentBids[productId]}")
         productId += 1
 
 # Function to check if client is up to bid, which helps so that clients are bombarding server with messages
-def ableToBid():
-    if(lastBidder + 1) % numberOfClients == clientId:
+def canBid():
+    if(lastBidder + 1) % numClients == clientId:
         return True
     return False
 
@@ -66,14 +66,14 @@ def send(msg):
     client.send(send_length)
     client.send(message)
 
-# Function to initialize arrays bidWinners and currentBids, and also the client profile for each client
-def varHelper():
-    global bidWinners
+# Function to initialize arrays bidWinner and currentBids, and also the client profile for each client
+def helperVar():
+    global bidWinner
     global clientHighestPrices
     file = f"client{clientId}.txt"
     i = 0
     while i < len(PRODUCTS):
-        bidWinners.append(-1)
+        bidWinner.append(-1)
         currentBids.append(list(PRODUCTS.values())[i])
         i += 1
     with open (file) as f:
@@ -82,10 +82,10 @@ def varHelper():
     print(f"You are {file}")
 
 # Function to decide whether the client has bid for an item
-def makeABid():
+def makeBid():
     print(f"Bidding for: {list(PRODUCTS.keys())[productId]}")
     print({currentBids[productId]})
-    if bidWinners[productId] == clientId:
+    if bidWinner[productId] == clientId:
         why = "CURRENTLY_THE_HIGHEST_BIDDER"
         print(f"<NO BID> YOU ARE CURRENTLY THE HIGHEST BIDDER")
         send(f"NO_BID {clientId} {why}")
@@ -95,7 +95,7 @@ def makeABid():
     bidAmount = currentBid + random.randint(25,75)
 
     if bidAmount < clientHighestPrices[productId]:
-        print(f"<BID> YOU BID FOR PRODUCT {list(PRODUCTS.keys())[productId]} with amount {bidAmount}")
+        print(f"<BID> YOU BID FOR {list(PRODUCTS.keys())[productId]} for {bidAmount}")
         send(f"BID {clientId} {bidAmount}")
     else:
         why = "PRICE_IS_TOO_HIGH"
@@ -104,9 +104,9 @@ def makeABid():
         return
 
 # Function to handle the message to the server
-def handle_server():
+def serverHandle():
     global clientId
-    global numberOfClients
+    global numClients
     global productId
     global lastBidder
 
@@ -115,16 +115,16 @@ def handle_server():
         if len(msg):
             msgList = msg.split()
             msgType = msgList[0] 
-            if msgType == "CONNECTED":  # When the client is connected give it a id and run varHelper() to initialize bidWinner[] and currentBids[]
+            if msgType == "CONNECTED":  # When the client is connected give it a id and run helperVar() to initialize bidWinner[] and currentBids[]
                 clientId = int(msgList[1])
-                varHelper()
+                helperVar()
             elif msgType == "PROD": # this gives client the productId so they know which product is being bid on
                 productId = int(msgList[1])
             elif msgType == "START_BID": # this initiates the bidding
                 productId = int(msgList[1])
-                numberOfClients = int(msgList[2])
+                numClients = int(msgList[2])
                 if choice():
-                    makeABid()
+                    makeBid()
                 else:
                     why = "NO_INTEREST"
                     print(f"<NO BID> NO INTEREST")
@@ -133,7 +133,7 @@ def handle_server():
                 clientNum = int(msgList[1])
                 bidAmount = float(msgList[2])
                 if bidAmount > currentBids[productId]:
-                    updateWinner(clientNum, bidAmount)
+                    winnerUpdate(clientNum, bidAmount)
                 print(f"Client {clientNum} bidded {bidAmount} for {list(PRODUCTS.keys())[productId]}")
             elif msgType == "NO_BID":
                 clientNum = int(msgList[1])
@@ -144,13 +144,13 @@ def handle_server():
                     print(f"Client {clientNum} reason for not bidding: {msgWhy}")
             elif msgType == "ANY_BIDS":
                 if choice():
-                    makeABid()
+                    makeBid()
                 else:
                     why = "NO_INTEREST"
                     print(f"<NO BID> NO INTEREST")
                     send(f"NO_BID {clientId} {why}")
             elif msgType == "END_BID":
-                displayWinners()
+                winnersDisplay()
                 send("DISCONNECT")
                 return
-handle_server()
+serverHandle()

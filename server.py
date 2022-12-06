@@ -24,52 +24,53 @@ PRODUCTS = {
     'EARPHONE' : 50.0
 }
 
-clients = []
-numberOfClients = 0
-clientsAdded = 0
-bidStart = False
-bidWinners = []
-productId = 0
-currentBids = []
+clients = [] # Client array initially is empty
+numClients = 0 # The number of clients is initially 0
+clientJoined = 0 # The number of clients joined is initialy 0
+bidBegin = False 
+bidWinner = [] # The bid winner is initally empty
+productId = 0 # The product ID is initially 0
+currentBids = [] # The current bid is initally empty
 
 
 # Function to send message to all clients
-def sendToAll(msg):
+def sendAll(msg):
     for client in clients:
         time.sleep(1)
         client.send(msg.encode(FORMAT))
 
 # Function to update current bid winner and the current bid
-def updateWinner(bidClient, bidAmount):
+def winnerUpdate(bidClient, bidAmount):
     if bidAmount > currentBids[productId]:
-        bidWinners[productId] = bidClient
+        bidWinner[productId] = bidClient
         currentBids[productId] = bidAmount
     return
 
 # Function to end bid
-def endBid():
-    global bidStart
+def bidEnd():
+    global bidBegin
     productId = 0
-    bidStart = False
+    bidBegin = False
     time.sleep(5)
     print("_______RESULT_______")
-    for bidWinner in bidWinners:
+    for bidWinner in bidWinner:
         print(f"CLIENT {bidWinner} bought {list(PRODUCTS.keys())[productId]} for ${currentBids[productId]}")
         productId += 1
-    sendToAll("END_BID")
+    sendAll("END_BID")
 
-def handle_client(conn, addr):
+# Function to handle clients
+def clientHandle(conn, addr):
     # global variables declaration
-    global clientsAdded
+    global clientJoined
     global clients
     global productId
-    global bidStart
+    global bidBegin
     
 
     print(f"[NEW CONNECTION] {addr} connected.")
     clients.append(conn)
-    clientId = clientsAdded
-    clientsAdded += 1
+    clientId = clientJoined
+    clientJoined += 1
     print(f"[CONNECTIONS] Client {clientId} has been connected")
     conn.send(f"CONNECTED {clientId}".encode(FORMAT))
     time.sleep(1)
@@ -84,14 +85,14 @@ def handle_client(conn, addr):
             if msgType == "BID":
                 clientNum = int(msgList[1])
                 bidAmount = float(msgList[2])
-                updateWinner(clientNum, bidAmount)
+                winnerUpdate(clientNum, bidAmount)
                 print(f"Client {clientNum} bid {bidAmount} for {list(PRODUCTS.keys())[productId]}")
-                sendToAll(f"BID {clientNum} {bidAmount}")
+                sendAll(f"BID {clientNum} {bidAmount}")
             if msgType == "NO_BID":
                 clientNum = int(msgList[1])
                 msgWhy = msgList[2]
                 print(f"Client {clientNum} reason for not bidding: {msgWhy}")
-                sendToAll(f"NO_BID {clientNum} {msgWhy}")
+                sendAll(f"NO_BID {clientNum} {msgWhy}")
             if msgType == "DISCONNECT":
                 connected = False
     conn.close()
@@ -99,41 +100,41 @@ def handle_client(conn, addr):
 
 # Function to start the server
 def start():
-    global numberOfClients
-    global bidWinners
-    global bidStart
+    global numClients
+    global bidWinner
+    global bidBegin
     global productId
     Timer = 7
-    numberOfClients = 4
+    numClients = 4
     server.listen()
     print(f"[LISTENING] Server is listening on {SERVER}")
     i = 0
     while i < len(PRODUCTS):
-        bidWinners.append(-1)
+        bidWinner.append(-1)
         currentBids.append(list(PRODUCTS.values())[i])
         i = i + 1
-    while numberOfClients > len(clients):
-        print(f"Waiting for {numberOfClients - (threading.active_count() - 1)} more clients")
+    while numClients > len(clients):
+        print(f"Waiting for {numClients - (threading.active_count() - 1)} more clients")
         conn, addr = server.accept()
-        thread = threading.Thread(target=handle_client, args=(conn, addr))
+        thread = threading.Thread(target=clientHandle, args=(conn, addr))
         thread.start()
         print(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
-        if((numberOfClients) == clientsAdded):
-            print(f"ALL CLIENTS HAVE BEEN SUCCESSFULLY CONNECTED! BIDS WILL START SOON")
-            bidStart = True
-            sendToAll(f"START_BID {productId} {numberOfClients}")
-    while bidStart:
+        if((numClients) == clientJoined):
+            print(f"ALL CLIENTS HAVE BEEN SUCCESSFULLY CONNECTED! BIDDING SESSION WILL START SOON")
+            bidBegin = True
+            sendAll(f"START_BID {productId} {numClients}")
+    while bidBegin:
         if(Timer <= 0):
             if productId >= 5:
-                endBid()
+                bidEnd()
                 return
-            print(f"Client {bidWinners[productId]} won {list(PRODUCTS.keys())[productId]}")
-            sendToAll(f"Client {bidWinners[productId]} won {list(PRODUCTS.keys())[productId]}")
+            print(f"Client {bidWinner[productId]} won {list(PRODUCTS.keys())[productId]}")
+            sendAll(f"Client {bidWinner[productId]} won {list(PRODUCTS.keys())[productId]}")
             productId += 1
             Timer = 7
-            sendToAll(f"START_BID {productId} {numberOfClients}")
+            sendAll(f"START_BID {productId} {numClients}")
         if(Timer <= 5):
-            sendToAll(f"ANY_BIDS")
+            sendAll(f"ANY_BIDS")
         Timer -= 1
         #print(Timer)
         time.sleep(1)
