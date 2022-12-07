@@ -20,7 +20,8 @@ def main():
     except:
         return print('\nUnable to connect to the server')
 
-    print(f'\n---------WELCOME TO CHAT ROOM--------\n')
+    f = open("welcome.txt", "r")
+    print(f.read())
     username = input('YOUR NAME: ')
     print('\n')
 

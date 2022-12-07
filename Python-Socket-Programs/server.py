@@ -4,18 +4,19 @@ import socket
 import sys
 
 server = socket.gethostbyname(socket.gethostname())
-port = 5050
+port = 4222
 address = (server, port)
 clients = []
 ONLINE = threading.Event()
 
 def main():
     global ONLINE
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Build TCP socket
+    server.setsockopt( socket.SOL_SOCKET, socket.SO_REUSEADDR, 1 )	# Reuse the port after unexpected close
     try:
-        server.bind(address)
-        server.listen()
-        ONLINE.set()
+        server.bind(address) # bind the socket and adress
+        server.listen() # wait client
+        ONLINE.set()    # add main server in socket list
 
         print(f'\nServer Connected!\nPORT NUMBER: {port}\n')
         print(f"SERVER INFO: {server}")
@@ -23,9 +24,9 @@ def main():
         return print(f'\nFAILED TO START ON PORT NUMBER: {port}\n\n')
 
     while True:
-        client, addr = server.accept()
-        print(f'Entered chat: {addr}')
-        clients.append(client)
+        client, addr = server.accept() # get the client's address and create communication socket
+        print(f'Entered chat: {addr}')  
+        clients.append(client)  # add this socket into socket list
 
         thr = threading.Thread(target=recv_msg, args=[client])
         thr.daemon = True
@@ -37,17 +38,19 @@ def main():
 def recv_msg(client):
     while True:
         try:
-            msg = client.recv(2048)
-            broadcast(msg, client)
+            msg = client.recv(2048) # if the event is from the client, get the message
+            broadcast(msg, client) # boardcast the message
         except:
             client.send(''.encode('utf-8'))
             remove_client(client)
             break
 
+# This function is used to send message to all socket connected by client
 def broadcast(msg, client):
     for user in clients:
         if not user == client:
             try:
+                #send
                 user.send(msg)
             except:
                 remove_client(user)
