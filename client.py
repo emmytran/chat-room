@@ -3,10 +3,14 @@ import socket
 import signal
 from time import sleep
 
-server = input('ENTER SERVER IP:')
-port = int(input('ENTER SERVER PORT:'))
+server = input('ENTER SERVER IP:') # Client must input the correct server IP of the server
+port = int(input('ENTER SERVER PORT:')) # Client must inpput the correct port number of the server
 header = 64
 address = (server, port)
+# threading.Event() is a simple way to communicate between threads
+# manages internal flag that callers can either set() or clear()
+# example: CONNECT_SINGAL.set() is used for setting the thread 
+#          CONNECT_SIGNAL.clear() is used for closing the thread
 CONNECT_SIGNAL = threading.Event()
 
 def main():
@@ -20,7 +24,7 @@ def main():
     except:
         return print('\nUnable to connect to the server')
 
-    f = open("welcome.txt", "r")
+    f = open("welcome.txt", "r") # open the txt file
     print(f.read())
     username = input('YOUR NAME: ')
     print('\n')
