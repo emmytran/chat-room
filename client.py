@@ -33,7 +33,7 @@ def main():
 
     thread1 = threading.Thread(target=recv_msg, args=[client, username])
     thread1.daemon = True
-#    thread1.setDaemon(True)
+#   thread1.setDaemon(True)
     thread1.start()
 
     thread2 = threading.Thread(target=send_msg,args=[client, username])
