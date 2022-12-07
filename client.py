@@ -12,7 +12,7 @@ CONNECT_SIGNAL = threading.Event()
 def main():
     global CONNECT_SIGNAL
 
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Build TCP socket
 
     try:
         client.connect(address)
@@ -42,6 +42,7 @@ def main():
     send_msg_client_exit(client, username)
     client.close()
 
+# Function for receiver message
 def recv_msg(client, username):
     global CONNECT_SIGNAL
 
@@ -59,6 +60,7 @@ def recv_msg(client, username):
             print('\nYOU ARE DISCONNECTED')
             CONNECT_SIGNAL.clear()
 
+# Function to show the messages sent
 def send_msg(client, username):
     global CONNECT_SIGNAL
 
@@ -69,9 +71,11 @@ def send_msg(client, username):
         except:
             CONNECT_SIGNAL.clear()
 
+# Function to alert when someone has left the chat
 def send_msg_client_exit(client, username):
     client.send(f'\n[GOODBYE] {username} has left the chat\n'.encode('utf-8'))
 
+# Function to close the connection
 def close_connect(sigmun, frame):
     global CONNECT_SIGNAL
     CONNECT_SIGNAL.clear()

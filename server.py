@@ -55,10 +55,12 @@ def broadcast(msg, client):
             except:
                 remove_client(user)
 
+# Function to remove the client when the client is disconnected
 def remove_client(client):
     if client in clients:
         clients.remove(client)
 
+# Function to close the server
 def close_server(signum, frame):
     global ONLINE
 
