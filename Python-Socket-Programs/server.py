@@ -40,7 +40,7 @@ def recv_msg(client):
             msg = client.recv(2048)
             broadcast(msg, client)
         except:
-            client.send('!BYE'.encode('utf-8'))
+            client.send(''.encode('utf-8'))
             remove_client(client)
             break
 
