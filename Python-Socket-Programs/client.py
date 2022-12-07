@@ -3,8 +3,8 @@ import socket
 import signal
 from time import sleep
 
-server = input('What is the server IP:')
-port = int(input('What is the server PORT:'))
+server = input('ENTER SERVER IP:')
+port = int(input('ENTER SERVER PORT:'))
 header = 64
 address = (server, port)
 CONNECT_SIGNAL = threading.Event()
@@ -20,8 +20,8 @@ def main():
     except:
         return print('\nUnable to connect to the server')
 
-    print(f'\n---------WELCOME TO INIFINITE CHAT--------\n')
-    username = input('Enter your name: ')
+    print(f'\n---------WELCOME TO CHAT ROOM--------\n')
+    username = input('YOUR NAME: ')
     print('\n')
 
     client.send(f'[WELCOME] {username} has entered the chatroom'.encode('utf-8'))
@@ -48,13 +48,14 @@ def recv_msg(client, username):
         try:
             msg = client.recv(2048).decode('utf-8')
             
-            if msg != '!BYE':
+            if msg != '':
                 print(f'\r{msg}\nYou: ', end='')
 
             else:
+                print('\nYOU ARE DISCONNECTED')
                 CONNECT_SIGNAL.clear()
         except:
-            print('\nDISCONNECTED')
+            print('\nYOU ARE DISCONNECTED')
             CONNECT_SIGNAL.clear()
 
 def send_msg(client, username):
