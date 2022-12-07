@@ -1,10 +1,10 @@
-import threading
+import threading # needs threading so that the sequence of instructions that run independenly of the program and of any other threads
 import signal
 import socket
 import sys
 
-server = socket.gethostbyname(socket.gethostname())
-port = 4222
+server = socket.gethostbyname(socket.gethostname()) # gethostname() accepts hostname arguments and returns the IP address in a string format
+port = 4222 # Port number, can be changed
 address = (server, port)
 clients = []
 ONLINE = threading.Event()
@@ -18,8 +18,9 @@ def main():
         server.listen() # wait client
         ONLINE.set()    # add main server in socket list
 
-        print(f'\nServer Connected!\nPORT NUMBER: {port}\n')
-        print(f"SERVER INFO: {server}")
+        print(f'\n[CONNECTED] Server Connected!')
+        print(f'\nPORT NUMBER: {port}')
+        print(f"\nSERVER INFO: {server}")
     except:
         return print(f'\nFAILED TO START ON PORT NUMBER: {port}\n\n')
 
@@ -38,7 +39,7 @@ def main():
 def recv_msg(client):
     while True:
         try:
-            msg = client.recv(2048) # if the event is from the client, get the message
+            msg = client.recv(4096) # if the event is from the client, get the message
             broadcast(msg, client) # boardcast the message
         except:
             client.send(''.encode('utf-8'))

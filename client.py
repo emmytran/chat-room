@@ -1,4 +1,4 @@
-import threading
+import threading # needs threading so that the sequence of instructions that run independenly of the program and of any other threads
 import socket
 import signal
 from time import sleep
@@ -16,20 +16,23 @@ CONNECT_SIGNAL = threading.Event()
 def main():
     global CONNECT_SIGNAL
 
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Build TCP socket
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Build TCP socket (SOCK_STREAM) // AF_INET is the Internet address family for IPv4
 
     try:
         client.connect(address)
         CONNECT_SIGNAL.set()
     except:
-        return print('\nUnable to connect to the server')
+        return print('\n[ERROR] Unable to connect to the server')
 
-    f = open("welcome.txt", "r") # open the txt file
+    # open textfile function
+    f = open("welcome.txt", "r") 
     print(f.read())
+
+    # Get user's name through their input
     username = input('YOUR NAME: ')
     print('\n')
 
-    client.send(f'[WELCOME] {username} has entered the chatroom'.encode('utf-8'))
+    client.send(f'[WELCOME] {username} has entered the chatroom'.encode('utf-8')) # Welcome message when a client enters the chat room
 
     thread1 = threading.Thread(target=recv_msg, args=[client, username])
     thread1.daemon = True
@@ -52,7 +55,7 @@ def recv_msg(client, username):
 
     while CONNECT_SIGNAL.is_set():
         try:
-            msg = client.recv(2048).decode('utf-8')
+            msg = client.recv(4096).decode('utf-8') # 4096 means the number of bytes you want to except, can be changed depending how you want
             
             if msg != '':
                 print(f'\r{msg}\nYou: ', end='')
