@@ -1,3 +1,7 @@
+# CSCI-156 Project
+# Group 11: Thuy Tran, Harry Patel, Ananshy Bhatt, Maria Guimaraes
+
+
 import threading # needs threading so that the sequence of instructions that run independenly of the program and of any other threads
 import socket
 import signal
