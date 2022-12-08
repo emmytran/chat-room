@@ -1,21 +1,31 @@
+# CSCI-156 Project
+# Group 11: Thuy Tran, Harry Patel, Ananshy Bhatt, Maria Guimaraes
+
 import threading # needs threading so that the sequence of instructions that run independenly of the program and of any other threads
 import signal
 import socket
 import sys
 
 server = socket.gethostbyname(socket.gethostname()) # gethostname() accepts hostname arguments and returns the IP address in a string format
-port = 4222 # Port number, can be changed
+port = 4222 # Port number, can be changed (non-priviledged port are greater than 1023)
 address = (server, port)
 clients = []
 ONLINE = threading.Event()
 
 def main():
     global ONLINE
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Build TCP socket
-    server.setsockopt( socket.SOL_SOCKET, socket.SO_REUSEADDR, 1 )	# Reuse the port after unexpected close
+
+    # socket.socket() creates a socket object that supprts the context manager type
+    # Build TCP socket (SOCK_STREAM) 
+    # AF_INET is the Internet address family for IPv4
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # SOL_SOCKET is a socket layer, used for options that are protocol independent
+    # SOL_REUSEADDR allows a socket to forcibly bind to a port in use by another socket
+    server.setsockopt( socket.SOL_SOCKET, socket.SO_REUSEADDR, 1 )	
     try:
-        server.bind(address) # bind the socket and adress
-        server.listen() # wait client
+        server.bind(address) # bind the socket with the address
+        server.listen() # wait client, listen() enables a server to accecpt connection
         ONLINE.set()    # add main server in socket list
 
         print(f'\n[CONNECTED] Server Connected!')
@@ -33,6 +43,7 @@ def main():
         thr.daemon = True
         thr.start()
 
+    # is_set() returns true if the internal flag of an event object is true, else return false
     while ONLINE.is_set():
         pass
 
