@@ -1,3 +1,5 @@
+----- CSCI-156 Project -----
+----- Group 11: Thuy Tran, Harry Patel, Ananshy Bhatt, Maria Guimaraes -----
 
 Multi-user room with sockets and threads in python
 
