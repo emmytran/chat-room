@@ -7,6 +7,7 @@ server = input('ENTER SERVER IP:') # Client must input the correct server IP of 
 port = int(input('ENTER SERVER PORT:')) # Client must inpput the correct port number of the server
 header = 64
 address = (server, port)
+
 # threading.Event() is a simple way to communicate between threads
 # manages internal flag that callers can either set() or clear()
 # example: CONNECT_SINGAL.set() is used for setting the thread 
@@ -16,10 +17,13 @@ CONNECT_SIGNAL = threading.Event()
 def main():
     global CONNECT_SIGNAL
 
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Build TCP socket (SOCK_STREAM) // AF_INET is the Internet address family for IPv4
+    # socket.socket() creates a socket object that supprts the context manager type
+    # Build TCP socket (SOCK_STREAM) 
+    # AF_INET is the Internet address family for IPv4
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
 
     try:
-        client.connect(address)
+        client.connect(address) # establish connection to the server
         CONNECT_SIGNAL.set()
     except:
         return print('\n[ERROR] Unable to connect to the server')
@@ -32,7 +36,8 @@ def main():
     username = input('YOUR NAME: ')
     print('\n')
 
-    client.send(f'[WELCOME] {username} has entered the chatroom'.encode('utf-8')) # Welcome message when a client enters the chat room
+    # Welcome message when a client enters the chat room
+    client.send(f'[WELCOME] {username} has entered the chatroom'.encode('utf-8')) 
 
     thread1 = threading.Thread(target=recv_msg, args=[client, username])
     thread1.daemon = True
@@ -71,7 +76,7 @@ def recv_msg(client, username):
 def send_msg(client, username):
     global CONNECT_SIGNAL
 
-    while CONNECT_SIGNAL.is_set():
+    while CONNECT_SIGNAL.is_set(): # while connect signal is on 
         try:
             msg = input('You: ')
             client.send(f'{username}: {msg}'.encode('utf-8'))
